@@ -1,103 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WHIZ Assets</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f9f9f9;
-        padding: 20px;
-    }
-    h1 {
-        text-align: center;
-    }
-    .file-list {
-        max-width: 800px;
-        margin: 20px auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 15px;
-    }
-    .file-item {
-        background: white;
-        border-radius: 8px;
-        padding: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    .file-item img {
-        max-width: 100%;
-        max-height: 150px;
-        margin-bottom: 10px;
-    }
-    .file-item button {
-        background: #4CAF50;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .file-item button:hover {
-        background: #45a049;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHIZ Assets</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --surface: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 30px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        #searchInput:focus {
+            border-color: var(--primary);
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        .error {
+            color: #DC2626;
+        }
+
+        .file-list {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .file-item {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .file-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview-container {
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F9FAFB;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .file-icon {
+            font-size: 4rem;
+            color: #D1D5DB;
+        }
+
+        .file-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            word-break: break-all;
+        }
+
+        .file-path {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            word-break: break-all;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        button, .btn-link {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.2s, opacity 0.2s;
+        }
+
+        .btn-copy {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-copy:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-link {
+            background: #E5E7EB;
+            color: var(--text-main);
+        }
+
+        .btn-link:hover {
+            background: #D1D5DB;
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: #10B981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-weight: 500;
+            animation: slideUp 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+    </style>
 </head>
 <body>
-<h1>WHIZ Assets</h1>
-<div class="file-list" id="fileList">
-    <!-- Files will be loaded here dynamically -->
-</div>
+
+<header>
+    <h1>WHIZ Assets</h1>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search files...">
+    </div>
+</header>
+
+<div id="statusMessage" class="status-message">Loading assets...</div>
+<div class="file-list" id="fileList"></div>
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
-const user = 'whizpoints';
-const repo = 'whizassets';
-const branch = 'main'; // change if your default branch is different
-
-async function loadFiles() {
-    const apiUrl = `https://api.github.com/repos/${user}/${repo}/git/trees/${branch}?recursive=1`;
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+    const user = 'mburuwhiz';
+    const repo = 'whizassets';
+    const branch = 'main'; // Change to 'master' if your repo uses the older default branch name
+    
+    let allFiles = [];
     const fileList = document.getElementById('fileList');
+    const statusMessage = document.getElementById('statusMessage');
+    const searchInput = document.getElementById('searchInput');
+    const toastContainer = document.getElementById('toastContainer');
 
-    data.tree.forEach(file => {
-        if(file.type === 'blob') {
-            const fileUrl = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${file.path}`;
+    async function init() {
+        try {
+            const apiUrl = `https://api.github.com/repos/${user}/${repo}/git/trees/${branch}?recursive=1`;
+            const response = await fetch(apiUrl);
             
+            if (!response.ok) {
+                throw new Error(response.status === 404 
+                    ? `Repository or branch not found. Make sure "${branch}" is the correct branch.` 
+                    : `API Error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            // Filter out directories, keep only files
+            allFiles = data.tree.filter(file => file.type === 'blob');
+            
+            if (allFiles.length === 0) {
+                statusMessage.textContent = "No files found in this repository.";
+                return;
+            }
+
+            statusMessage.style.display = 'none';
+            renderFiles(allFiles);
+
+        } catch (error) {
+            statusMessage.innerHTML = `<span class="error">Failed to load: ${error.message}</span><br><br>
+            <small>If this is a private repo, the GitHub API cannot read it without authentication.</small>`;
+        }
+    }
+
+    function renderFiles(files) {
+        fileList.innerHTML = ''; // Clear current grid
+
+        if(files.length === 0) {
+            fileList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;">No matching files found.</div>';
+            return;
+        }
+
+        files.forEach(file => {
+            const fileUrl = `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${file.path}`;
+            const fileName = file.path.split('/').pop();
+            const isImage = file.path.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i);
+
             const item = document.createElement('div');
             item.classList.add('file-item');
             
-            // Show image if it's an image file
-            if(file.path.match(/\.(png|jpg|jpeg|gif|svg)$/i)) {
-                const img = document.createElement('img');
-                img.src = fileUrl;
-                item.appendChild(img);
+            // Preview Area
+            let previewHTML = '';
+            if (isImage) {
+                previewHTML = `<img src="${fileUrl}" alt="${fileName}" loading="lazy">`;
+            } else {
+                previewHTML = `<div class="file-icon">📄</div>`;
             }
-            
-            const fileName = document.createElement('p');
-            fileName.textContent = file.path.split('/').pop();
-            item.appendChild(fileName);
-            
-            const btn = document.createElement('button');
-            btn.textContent = 'Copy Link';
-            btn.onclick = () => {
-                navigator.clipboard.writeText(fileUrl)
-                    .then(() => alert('Copied to clipboard!'))
-                    .catch(() => alert('Failed to copy.'));
-            };
-            item.appendChild(btn);
-            
-            fileList.appendChild(item);
-        }
-    });
-}
 
-loadFiles();
+            item.innerHTML = `
+                <div class="preview-container">
+                    ${previewHTML}
+                </div>
+                <div class="file-info">
+                    <div class="file-name">${fileName}</div>
+                    <div class="file-path">${file.path}</div>
+                    <div class="actions">
+                        <button class="btn-copy" data-url="${fileUrl}">Copy Link</button>
+                        <a href="${fileUrl}" target="_blank" class="btn-link">View</a>
+                    </div>
+                </div>
+            `;
+
+            // Attach event listener to copy button
+            const copyBtn = item.querySelector('.btn-copy');
+            copyBtn.addEventListener('click', () => copyToClipboard(fileUrl));
+
+            fileList.appendChild(item);
+        });
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Link copied to clipboard!');
+        }).catch(() => {
+            showToast('Failed to copy link.', true);
+        });
+    }
+
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.classList.add('toast');
+        if (isError) toast.style.background = '#DC2626';
+        toast.textContent = message;
+        
+        toastContainer.appendChild(toast);
+        
+        // Remove from DOM after animation finishes
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    // Search functionality
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredFiles = allFiles.filter(file => 
+            file.path.toLowerCase().includes(searchTerm)
+        );
+        renderFiles(filteredFiles);
+    });
+
+    // Start the app
+    init();
 </script>
 </body>
 </html>
